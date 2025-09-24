@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PersonaGen AI | AI Brand Identity & Persona Generator</title>
+    <meta name="description" content="Generate a complete brand identity for your new project or channel in seconds. Get AI-powered name ideas, color palettes, font pairings, and even AI art prompts for your logo. The ultimate tool for creators.">
+    <meta name="keywords" content="brand identity generator, ai persona generator, business name generator, color palette generator, font pairing, ai logo prompt, creator tools, startup tools">
+    
+    <link rel="canonical" href="https://nexuslaunchpro.netlify.app/" />
+
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://nexuslaunchpro.netlify.app/">
+    <meta property="og:title" content="PersonaGen AI | AI Brand Identity & Persona Generator">
+    <meta property="og:description" content="Generate a complete brand identity from a single prompt. Get name ideas, color palettes, font pairings, and AI art prompts for your logo.">
+
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://nexuslaunchpro.netlify.app/">
+    <meta property="twitter:title" content="PersonaGen AI | AI Brand Identity & Persona Generator">
+    <meta property="twitter:description" content="Generate a complete brand identity from a single prompt. Get name ideas, color palettes, font pairings, and AI art prompts for your logo.">
+
+    <link rel="icon" href="data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%2342f8f5;stop-opacity:1'/%3E%3Cstop offset='100%25' style='stop-color:%234248f5;stop-opacity:1'/%3E%3C/linearGradient%3E%3Cfilter id='glow'%3E%3CfeGaussianBlur stdDeviation='3.5' result='coloredBlur'/%3E%3CfeMerge%3E%3CfeMergeNode in='coloredBlur'/%3E%3CfeMergeNode in='SourceGraphic'/%3E%3C/feMerge%3E%3C/defs%3E%3Cpath d='M50,20 C77.6,20 100,42.4 100,70 C100,85 80,80 80,70 C80,59 72,50 60,50 L40,50 L40,80 L20,80 L20,20 Z' stroke='url(%23grad)' stroke-width='10' fill='none' filter='url(%23glow)'/%3E%3C/svg%3E">
+    
+    <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --main-bg-color: #000f14;
+            --panel-bg-color: #12151a;
+            --header-bg-color: rgba(28, 34, 45, 0.8);
+            --text-color-light: #ffffff;
+            --text-color-dark: #bebebe;
+            --accent-primary: #42f8f5;
+            --accent-secondary: #4248f5;
+            --accent-glow-color: #424845;
+            --glow-shadow: rgba(66, 248, 245, 0.6);
+            --font-family: 'Orbitron', sans-serif;
+            --navbar-height: 70px;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: var(--font-family);
+            background-color: var(--main-bg-color);
+            color: var(--text-color-light);
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: var(--header-bg-color);
+            backdrop-filter: blur(10px);
+            padding: 0 2rem;
+            height: var(--navbar-height);
+            border-bottom: 1px solid var(--accent-glow-color);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .logo { display: flex; align-items: center; gap: 15px; }
+        .logo-img {
+            width: 40px;
+            height: 40px;
+            filter: drop-shadow(0 0 8px var(--glow-shadow));
+            transition: transform 0.4s ease-in-out;
+        }
+        .logo-img:hover { transform: rotate(360deg) scale(1.1); }
+        .logo h1 {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: var(--accent-primary);
+            text-shadow: 0 0 10px var(--glow-shadow);
+            margin: 0;
+        }
+
+        .main-container {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .wizard-step {
+            background: var(--panel-bg-color);
+            border: 1px solid var(--accent-glow-color);
+            border-radius: 10px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .wizard-step h2 {
+            margin-top: 0;
+            color: var(--accent-primary);
+            text-shadow: 0 0 8px var(--glow-shadow);
+        }
+        .wizard-step label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-color-dark);
+        }
+        .wizard-step input, .wizard-step select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 1rem;
+            background-color: var(--main-bg-color);
+            border: 1px solid var(--accent-glow-color);
+            color: var(--text-color-light);
+            border-radius: 5px;
+            font-family: var(--font-family);
+            font-size: 1rem;
+        }
+        .wizard-step input:focus, .wizard-step select:focus {
+            border-color: var(--accent-primary);
+            outline: none;
+            box-shadow: 0 0 10px var(--glow-shadow);
+        }
+
+        .generate-button {
+            display: block;
+            width: 100%;
+            padding: 1rem;
+            font-family: var(--font-family);
+            font-size: 1.5rem;
+            font-weight: 900;
+            background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+            border: none;
+            border-radius: 5px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .generate-button:hover {
+            box-shadow: 0 0 20px var(--glow-shadow);
+            transform: translateY(-3px);
+        }
+        .generate-button:disabled {
+            background: #333;
+            color: #888;
+            cursor: not-allowed;
+        }
+        
+        .loader-container {
+            text-align: center;
+            padding: 4rem 0;
+        }
+        .loader {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 5px solid var(--accent-glow-color);
+            border-top-color: var(--accent-primary);
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        /* --- Results Panel --- */
+        #results-panel {
+            background-color: var(--panel-bg-color);
+            border: 1px solid var(--accent-glow-color);
+            border-radius: 10px;
+            padding: 2rem;
+        }
+        .result-section { margin-bottom: 2rem; }
+        .result-section h3 { border-bottom: 1px solid var(--accent-glow-color); padding-bottom: 0.5rem; color: var(--accent-primary); }
+        .result-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; }
+        .result-item { background: var(--main-bg-color); padding: 1rem; border-radius: 5px; cursor: pointer; transition: background-color 0.2s; }
+        .result-item:hover { background-color: var(--header-bg-color); }
+        .result-item p { margin: 0; }
+        .color-palette { display: flex; gap: 10px; }
+        .color-swatch { width: 50px; height: 50px; border-radius: 5px; cursor: pointer; transition: transform 0.2s; }
+        .color-swatch:hover { transform: scale(1.1); }
+        .font-pairing span { display: block; }
+        .font-pairing .font-headline { font-size: 1.5em; font-weight: 700; }
+        .tool-button { background: var(--main-bg-color); color: var(--accent-primary); border: 1px solid var(--accent-primary); padding: 0.8rem 1.5rem; border-radius: 5px; cursor: pointer; width: auto; margin-top: 10px; transition: all 0.3s ease; display: inline-block; text-decoration: none; text-align: center; font-family: var(--font-family); }
+        .tool-button:hover { background-color: var(--accent-secondary); border-color: var(--accent-secondary); color: var(--text-color-light); box-shadow: 0 0 10px var(--glow-shadow); }
+
+        .ad-script-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            z-index: 9999;
+        }
+    </style>
+    
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "PersonaGen AI",
+      "url": "https://nexuslaunchpro.netlify.app/",
+      "description": "Generate a complete brand identity from a single prompt. Get name ideas, color palettes, font pairings, and AI art prompts for your logo."
+    }
+    </script>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">
+             <svg class="logo-img" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="logoTitle">
+                <title id="logoTitle">PersonaGen AI Logo</title>
+                <defs>
+                    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#42f8f5;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#4248f5;stop-opacity:1" />
+                    </linearGradient>
+                    <filter id="glow">
+                        <feGaussianBlur stdDeviation="3.5" result="coloredBlur"/>
+                        <feMerge>
+                            <feMergeNode in="coloredBlur"/>
+                            <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                    </filter>
+                </defs>
+                <path d="M50,20 C77.6,20 100,42.4 100,70 C100,85 80,80 80,70 C80,59 72,50 60,50 L40,50 L40,80 L20,80 L20,20 Z" stroke="url(#grad)" stroke-width="10" fill="none" filter="url(#glow)"/>
+            </svg>
+            <h1>PersonaGen AI</h1>
+        </div>
+    </header>
+
+    <main class="main-container">
+        <div id="wizard-container">
+            <div class="wizard-step" id="step-1">
+                <h2>Step 1: Define Your Core Idea</h2>
+                <label for="topic-input">What is your main topic or keyword?</label>
+                <input type="text" id="topic-input" placeholder="e.g., Coffee, Fitness, Gaming...">
+            </div>
+            <div class="wizard-step" id="step-2">
+                <h2>Step 2: Choose Your Vibe</h2>
+                <label for="vibe-select">What is the personality of your brand?</label>
+                <select id="vibe-select">
+                    <option value="modern">Modern & Minimal</option>
+                    <option value="playful">Fun & Playful</option>
+                    <option value="elegant">Elegant & Luxurious</option>
+                    <option value="bold">Bold & Energetic</option>
+                    <option value="natural">Natural & Earthy</option>
+                </select>
+            </div>
+            <div class="wizard-step" id="step-3">
+                <h2>Step 3: Describe Your Audience</h2>
+                <label for="audience-input">Who are you trying to reach?</label>
+                <input type="text" id="audience-input" placeholder="e.g., Young professionals, students, creative artists...">
+                <button id="generate-btn" class="generate-button">Forge My Brand Persona</button>
+            </div>
+        </div>
+
+        <div id="results-container" style="display: none;">
+            <!-- Results will be injected here -->
+        </div>
+
+    </main>
+
+    <div class="ad-script-container">
+        <!-- AD SCRIPT GOES HERE -->
+    </div>
+</body>
+    <!-- JavaScript -->
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const wizardContainer = document.getElementById('wizard-container');
+        const resultsContainer = document.getElementById('results-container');
+        const generateBtn = document.getElementById('generate-btn');
+        
+        const topicInput = document.getElementById('topic-input');
+        const vibeSelect = document.getElementById('vibe-select');
+        const audienceInput = document.getElementById('audience-input');
+
+        const data = {
+            namePrefixes: ["Zen", "Urban", "Retro", "Pixel", "Nova", "Aqua", "Stellar", "Kindred", "Ever", "Peak", "Apex", "Vivid", "True"],
+            nameSuffixes: ["Vibe", "Collective", "Co", "Labs", "Studios", "Works", "Supply", "Forge", "Hub", "Verse", "Creative", "Brand"],
+            
+            slogans: {
+                modern: "Simplicity, Perfected.",
+                playful: "Seriously Fun.",
+                elegant: "The Definition of Luxury.",
+                bold: "Unleash Your Potential.",
+                natural: "Rooted in Nature."
+            },
+
+            palettes: {
+                modern: ["#FFFFFF", "#CCCCCC", "#333333", "#007BFF"],
+                playful: ["#FFD166", "#06D6A0", "#118AB2", "#EF476F"],
+                elegant: ["#F7F7F7", "#C0C0C0", "#2C3E50", "#D4AF37"],
+                bold: ["#FF4E50", "#FC913A", "#F9D423", "#EDE574"],
+                natural: ["#E5E4E2", "#AFA79F", "#6B8E23", "#556B2F"]
+            },
+            
+            fonts: {
+                modern: { headline: "'Orbitron', sans-serif", body: "'Roboto', sans-serif" },
+                playful: { headline: "'Bangers', cursive", body: "'Lato', sans-serif" },
+                elegant: { headline: "'Playfair Display', serif", body: "'Montserrat', sans-serif" },
+                bold: { headline: "'Anton', sans-serif", body: "'Oswald', sans-serif" },
+                natural: { headline: "'Merriweather', serif", body: "'Open Sans', sans-serif" }
+            },
+
+            prompts: {
+                modern: "minimalist logo, clean lines, geometric shapes, single color, {topic}, vector art",
+                playful: "cute mascot logo, cartoon style, bright and friendly colors, for a {topic} brand, digital illustration",
+                elegant: "luxurious emblem, metallic gold on a dark background, intricate details, serif typography, for a high-end {topic} company, cinematic lighting",
+                bold: "dynamic action logo, energetic lines, bold typography, vibrant colors, {topic}, graphic illustration",
+                natural: "hand-drawn logo, botanical elements, earthy tones, organic shapes, for a natural {topic} brand, textured paper background"
+            },
+
+            postIdeas: {
+                modern: ["3 myths about {topic} debunked", "Our minimalist approach to {topic}", "The only guide to {topic} you'll ever need"],
+                playful: ["A day in the life of a {topic} lover", "What your favorite {topic} says about you", "Tag a friend who needs to see this!"],
+                elegant: ["The art of perfecting {topic}", "Behind the scenes of our {topic} process", "An exclusive look into the world of {topic}"],
+                bold: ["The ultimate challenge for {topic} enthusiasts", "How to 10x your {topic} results", "Warning: This will change how you see {topic}"],
+                natural: ["Our sustainable approach to {topic}", "How {topic} connects us to nature", "The simple ingredients for a better {topic}"]
+            }
+        };
+
+        const generateRandom = (arr) => arr[Math.floor(Math.random() * arr.length)];
+        const capitalize = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+
+        const generateBrandKit = () => {
+            if (!topicInput.value || !audienceInput.value) {
+                alert("Please fill out all the fields to forge your brand.");
+                return;
+            }
+
+            const topic = topicInput.value;
+            const vibe = vibeSelect.value;
+            
+            wizardContainer.style.display = 'none';
+            resultsContainer.innerHTML = `<div class="loader-container"><div class="loader"></div><p style="margin-top: 1rem;">Forging your brand...</p></div>`;
+            resultsContainer.style.display = 'block';
+
+            setTimeout(() => {
+                let names = new Set();
+                while(names.size < 5) {
+                    names.add(`${generateRandom(data.namePrefixes)} ${capitalize(topic)}`);
+                    names.add(`${capitalize(topic)} ${generateRandom(data.nameSuffixes)}`);
+                }
+                const nameHTML = Array.from(names).map(name => `<div class="result-item" title="Click to copy"><p>${name}</p></div>`).join('');
+                const slogan = data.slogans[vibe];
+                const sloganHTML = `<div class="result-item" title="Click to copy"><p>${slogan}</p></div>`;
+                const palette = data.palettes[vibe];
+                const paletteHTML = `<div class="color-palette">${palette.map(color => `<div class="color-swatch" style="background-color:${color}" title="Click to copy ${color}"></div>`).join('')}</div>`;
+                const fonts = data.fonts[vibe];
+                const fontsHTML = `<div class="font-pairing"><span class="font-headline" style="font-family:${fonts.headline}">Headline: ${fonts.headline.split(',')[0]}</span><span class="font-body" style="font-family:${fonts.body}">Body: ${fonts.body.split(',')[0]}</span></div>`;
+                const promptTemplate = data.prompts[vibe];
+                const promptHTML = Array.from({length: 3}).map((_, i) => {
+                    const promptText = promptTemplate.replace(/{topic}/g, topic) + (i > 0 ? `, variation ${i+1}` : '');
+                    return `<div class="result-item" title="Click to copy"><p>${promptText}</p></div>`;
+                }).join('');
+                const ideaTemplate = data.postIdeas[vibe];
+                const ideasHTML = ideaTemplate.map(idea => `<div class="result-item" title="Click to copy"><p>${idea.replace(/{topic}/g, topic)}</p></div>`).join('');
+
+                resultsContainer.innerHTML = `
+                    <div id="brand-kit-report">
+                        <div class="result-section"><h3>Brand Name Ideas</h3><div class="result-grid">${nameHTML}</div></div>
+                        <div class="result-section"><h3>Slogan / Tagline</h3><div class="result-grid">${sloganHTML}</div></div>
+                        <div class="result-section"><h3>Color Palette</h3>${paletteHTML}</div>
+                        <div class="result-section"><h3>Font Pairing</h3>${fontsHTML}</div>
+                        <div class="result-section"><h3>AI Profile Picture Prompts (for Midjourney, etc.)</h3><div class="result-grid">${promptHTML}</div></div>
+                        <div class="result-section"><h3>Your First 3 Post Ideas</h3><div class="result-grid">${ideasHTML}</div></div>
+                    </div>
+                    <button id="download-kit-btn" class="download-button">Download Brand Kit as PDF</button>
+                    <button id="start-over-btn" class="tool-button" style="width:100%; margin-top:1rem;">Start Over</button>
+                `;
+                
+                document.getElementById('download-kit-btn').addEventListener('click', async () => {
+                    const { PDFDocument } = PDFLib;
+                    const reportElement = document.getElementById('brand-kit-report');
+                    
+                    reportElement.querySelectorAll('*').forEach(el => el.style.color = '#000');
+                    
+                    const canvas = await html2canvas(reportElement, { backgroundColor: '#FFFFFF' });
+                    
+                    reportElement.querySelectorAll('*').forEach(el => el.style.color = '');
+
+                    const imgData = canvas.toDataURL('image/png');
+                    
+                    const pdfDoc = await PDFDocument.create();
+                    const pngImage = await pdfDoc.embedPng(imgData);
+                    const page = pdfDoc.addPage([pngImage.width, pngImage.height]);
+                    page.drawImage(pngImage, { x: 0, y: 0, width: pngImage.width, height: pngImage.height });
+                    
+                    const pdfBytes = await pdfDoc.save();
+                    const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = 'Your-Brand-Kit.pdf';
+                    link.click();
+                    URL.revokeObjectURL(link.href);
+                });
+
+                document.getElementById('start-over-btn').addEventListener('click', () => {
+                    resultsContainer.style.display = 'none';
+                    wizardContainer.style.display = 'block';
+                });
+
+                resultsContainer.querySelectorAll('.result-item, .color-swatch').forEach(el => {
+                    el.addEventListener('click', () => {
+                        const textToCopy = el.classList.contains('color-swatch') ? el.title.split(' ')[2] : el.textContent;
+                        navigator.clipboard.writeText(textToCopy);
+                    });
+                });
+
+            }, 1500);
+        };
+        
+        generateBtn.addEventListener('click', generateBrandKit);
+        
+        const adContainer = document.querySelector('.ad-script-container');
+        const adScript = document.createElement('script');
+        adScript.type = 'text/javascript';
+        adScript.src = '//pl27659104.revenuecpmgate.com/1b/9a/e9/1b9ae9b5367786e61753718dab6de5cf.js';
+        adContainer.appendChild(adScript);
+    });
+    </script>
+</body>
+</html>
